@@ -1,113 +1,196 @@
-# Vanilla App Template
+### Task: Searchify
 
-Цей проект було створено за допомогою Vite. Для знайомства та налаштування
-додаткових можливостей [звернись до документації](https://vitejs.dev/).
+Create the frontend part of an application for searching and viewing images
+based on a keyword. Add styling to the interface elements.
 
-## Створення репозиторію за шаблоном
+Watch the demo video of the application in action.
 
-Використовуй цей репозиторій організації GoIT як шаблон для створення
-репозиторію свого проекту. Для цього натисни на кнопку `«Use this template»` і
-обери опцію `«Create a new repository»`, як показано на зображенні.
+https://user-images.githubusercontent.com/17479434/125040406-49a6f600-e0a0-11eb-975d-e7d8eaf2af6b.mp4
 
-![Creating repo from a template step 1](./assets/template-step-1.png)
+#### Search form
 
-На наступному етапі відкриється сторінка створення нового репозиторію. Заповни
-поле його імені, переконайся, що репозиторій публічний, після чого натисни
-кнопку `«Create repository from template»`.
+The form is initially included in the HTML document. The user will input a
+search query into the text field, and upon form submission, an HTTP request
+needs to be executed.
 
-![Creating repo from a template step 2](./assets/template-step-2.png)
-
-Після того, як репозиторій буде створено, необхідно перейти в налаштування
-створеного репозиторію на вкладку `Settings` > `Actions` > `General` як показано
-на зображенні.
-
-![Settings GitHub Actions permissions step 1](./assets/gh-actions-perm-1.png)
-
-Проскроливши сторінку до самого кінця, в секції `«Workflow permissions»` обери
-опцію `«Read and write permissions»` і постав галочку в чекбоксі. Це необхідно
-для автоматизації процесу деплою проекту.
-
-![Settings GitHub Actions permissions step 2](./assets/gh-actions-perm-2.png)
-
-Тепер у тебе є особистий репозиторій проекту, зі структурою файлів та папок
-репозиторію-шаблону. Далі працюй з ним, як з будь-яким іншим особистим
-репозиторієм, клонуй його собі на комп'ютер, пиши код, роби коміти та відправляй
-їх на GitHub.
-
-## Підготовка до роботи
-
-1. Переконайся, що на комп'ютері встановлено LTS-версію Node.js.
-   [Скачай та встанови](https://nodejs.org/en/) її якщо необхідно.
-2. Встанови базові залежності проекту в терміналі командою `npm install`.
-3. Запусти режим розробки, виконавши в терміналі команду `npm run dev`.
-4. Перейдіть у браузері за адресою
-   [http://localhost:5173](http://localhost:5173). Ця сторінка буде автоматично
-   перезавантажуватись після збереження змін у файли проекту.
-
-## Файли і папки
-
-- Файли розмітки компонентів сторінки повинні лежати в папці `src/partials` та
-  імпортуватись до файлу `index.html`. Наприклад, файл з розміткою хедера
-  `header.html` створюємо у папці `partials` та імпортуємо в `index.html`.
-- Файли стилів повинні лежати в папці `src/css` та імпортуватись до HTML-файлів
-  сторінок. Наприклад, для `index.html` файл стилів називається `index.css`.
-- Зображення додавай до папки `src/img`. Збирач оптимізує їх, але тільки при
-  деплої продакшн версії проекту. Все це відбувається у хмарі, щоб не
-  навантажувати твій комп'ютер, тому що на слабких компʼютерах це може зайняти
-  багато часу.
-
-## Деплой
-
-Продакшн версія проекту буде автоматично збиратися та деплоїтись на GitHub
-Pages, у гілку `gh-pages`, щоразу, коли оновлюється гілка `main`. Наприклад,
-після прямого пуша або прийнятого пул-реквесту. Для цього необхідно у файлі
-`package.json` змінити значення прапора `--base=/<REPO>/`, для команди `build`,
-замінивши `<REPO>` на назву свого репозиторію, та відправити зміни на GitHub.
-
-```json
-"build": "vite build --base=/<REPO>/",
+```html
+<form class="search-form" id="search-form">
+  <input
+    type="text"
+    name="searchQuery"
+    autocomplete="off"
+    placeholder="Search images..."
+  />
+  <button type="submit">Search</button>
+</form>
 ```
 
-Далі необхідно зайти в налаштування GitHub-репозиторію (`Settings` > `Pages`) та
-виставити роздачу продакшн версії файлів з папки `/root` гілки `gh-pages`, якщо
-це не було зроблено автоматично.
+#### HTTP-requests
 
-![GitHub Pages settings](./assets/repo-settings.png)
+For the backend, use the public [Pixabay](https://pixabay.com/api/docs/) API
+service. Register, obtain your unique access key, and familiarize yourself with
+the documentation.
 
-### Статус деплою
+List of query string parameters that you must specify:
 
-Статус деплою крайнього коміту відображається іконкою біля його ідентифікатора.
+- `key` - your unique access key to the API.
+- `q` - the term for searching. What the user will input.
+- `image_type` - the type of image. Only photos are needed, so set the value to
+  `photo`.
+- `orientation` - the orientation of the photo. Set the value to `horizontal`.
+- `safesearch` - age filter. Set the value to `true`.
 
-- **Жовтий колір** - виконується збірка та деплой проекту.
-- **Зелений колір** - деплой завершився успішно.
-- **Червоний колір** - під час лінтингу, збірки чи деплою сталася помилка.
+The response will be an array of images that meet the criteria of the query
+parameters. Each image is described by an object, and you are only interested in
+the following properties:
 
-Більш детальну інформацію про статус можна переглянути натиснувши на іконку, і в
-вікні, що випадає, перейти за посиланням `Details`.
+- `webformatURL` - link to a small image for the card list.
+- `largeImageURL` - link to the large image.
+- `tags` - a string with the description of the image. Suitable for the alt
+  attribute.
+- `likes` - the number of likes.
+- `views` - the number of views.
+- `comments` - the number of comments.
+- `downloads` - the number of downloads.
 
-![Deployment status](./assets/deploy-status.png)
+If the backend returns an empty array, it means nothing suitable was found. In
+that case, display a message with the text "Sorry, there are no images matching
+your search query. Please try again." For messages, use the
+[iziToast](https://izitoast.marcelodolza.com/) library.
 
-### Жива сторінка
+#### Gallery and Image Card
 
-Через якийсь час, зазвичай кілька хвилин, живу сторінку можна буде подивитися за
-адресою, вказаною на вкладці `Settings` > `Pages` в налаштуваннях репозиторію.
-Наприклад, ось посилання на живу версію для цього репозиторію
+The `div.gallery` element is initially present in the HTML document, and it
+needs to render the layout of image cards. When searching for a new keyword, it
+is necessary to completely clear the content of the gallery to avoid mixing
+results.
 
-[https://goitacademy.github.io/vanilla-app-template/](https://goitacademy.github.io/vanilla-app-template/).
+```html
+<div class="gallery">
+  <!-- Image Card -->
+</div>
+```
 
-Якщо відкриється порожня сторінка, переконайся, що у вкладці `Console` немає
-помилок пов'язаних з неправильними шляхами до CSS та JS файлів проекту
-(**404**). Швидше за все у тебе неправильне значення прапора `--base` для
-команди `build` у файлі `package.json`.
+Template for the layout of a card for one image in the gallery.
 
-## Як це працює
+```html
+<div class="photo-card">
+  <img src="" alt="" loading="lazy" />
+  <div class="info">
+    <p class="info-item">
+      <b>Likes</b>
+    </p>
+    <p class="info-item">
+      <b>Views</b>
+    </p>
+    <p class="info-item">
+      <b>Comments</b>
+    </p>
+    <p class="info-item">
+      <b>Downloads</b>
+    </p>
+  </div>
+</div>
+```
 
-![How it works](./assets/how-it-works.png)
+#### Pagination
 
-1. Після кожного пуша у гілку `main` GitHub-репозиторію, запускається
-   спеціальний скрипт (GitHub Action) із файлу `.github/workflows/deploy.yml`.
-2. Усі файли репозиторію копіюються на сервер, де проект ініціалізується та
-   проходить лінтинг та збірку перед деплоєм.
-3. Якщо всі кроки пройшли успішно, зібрана продакшн версія файлів проекту
-   відправляється у гілку `gh-pages`. В іншому випадку, у лозі виконання скрипта
-   буде вказано в чому проблема.
+Pixabay API supports pagination and provides the parameters `page` and
+`per_page`. Set it up so that each response brings 40 objects (by default it's
+20).
+
+- The initial value of the `page` parameter should be 1.
+- With each subsequent request, it needs to be increased by 1.
+- In case of searching with a new keyword, the value of `page` should be reset
+  to the initial value, as there will be pagination over a new collection of
+  images.
+
+The HTML document already contains the button layout, and upon clicking it, a
+request for the next group of images needs to be executed, and the layout should
+be added to the existing gallery elements.
+
+```html
+<button type="button" class="load-more">Load more</button>
+```
+
+- In the initial state, the button should be hidden.
+- After the first request, the button appears in the interface below the
+  gallery.
+- Upon a subsequent form submit, the button is initially hidden again and then
+  reappears after the request.
+
+In the backend response, the property `totalHits` is returned - the total number
+of images that match the search criteria (for a free account). If the user has
+reached the end of the collection, hide the button and display a message with
+the text `"We're sorry, but you've reached the end of search results."`
+
+## Additionally
+
+> [!Warning]The following functionality is not mandatory for completing the task
+> but will be a good additional practice.
+
+#### Message
+
+After the first request, with each new search, receive a message indicating how
+many images were found in total (the `totalHits` property). The message text
+should be `"Hooray! We found totalHits images."`
+
+#### `SimpleLightBox` Library
+
+Add the display of a larger version of the image using the
+[SimpleLightbox](https://simplelightbox.com/) library for a full-fledged
+gallery.
+
+- The markup will need to wrap each image card in a reference as specified in
+  the documentation.
+- The library contains a `refresh()` method that must be called every time a new
+  group of image cards is added.
+
+In order to connect the CSS code of the library to the project, it is necessary
+to add one more import, in addition to the one described in the documentation.
+
+```js
+// Described in the documentation
+import SimpleLightbox from 'simplelightbox';
+// Additional import of styles
+import 'simplelightbox/dist/simple-lightbox.min.css';
+```
+
+#### Page scrolling
+
+Make smooth scrolling of the page after requesting and rendering each subsequent
+group of images. Here is a hint code for you, but figure it out yourself.
+
+```js
+const { height: cardHeight } = document
+  .querySelector('.gallery')
+  .firstElementChild.getBoundingClientRect();
+
+window.scrollBy({
+  top: cardHeight * 2,
+  behavior: 'smooth',
+});
+```
+
+#### Infinite scroll
+
+Instead of the "Load more" button, you can make endless loading of images while
+scrolling the page. We give you full freedom of action in implementation, you
+can use any libraries.
+
+---
+
+## Preparing for work
+
+1. Make sure you have the LTS version of Node.js installed on your computer.  
+    [Download and install](https://nodejs.org/en/) it if necessary.
+
+2. Install the basic project dependencies in the terminal with the command  
+    `npm install`.
+
+3. Start the development mode by running the command `npm run dev` in the  
+    terminal.
+
+4. Go to the following address in your browser  
+    [http://localhost:5173](http://localhost:5173). This page will automatically
+      reload automatically after saving changes to the project files.
