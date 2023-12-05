@@ -78,8 +78,6 @@ const toggleLoadMoreButton = () => {
   }
 };
 
-loadMoreBtn.style.display = 'none';
-
 searchForm.addEventListener('submit', async event => {
   event.preventDefault();
   searchQuery = event.target.elements.searchQuery.value.trim();
@@ -97,7 +95,7 @@ searchForm.addEventListener('submit', async event => {
       'Sorry, there are no images matching your search query. Please try again.'
     );
     gallery.innerHTML = '';
-    toggleLoadMoreButton();
+    loadMoreBtn.style.display = 'none';
     return;
   }
 
@@ -109,9 +107,9 @@ searchForm.addEventListener('submit', async event => {
   toggleLoadMoreButton();
 
   const totalPages = Math.ceil(data.totalHits / data.perPage);
-  if (data.pageNumber >= totalPages) {
+  if (page === totalPages) {
     showMessage("We're sorry, but you've reached the end of search results.");
-    toggleLoadMoreButton();
+    loadMoreBtn.style.display = 'none';
     return;
   }
 });
@@ -122,7 +120,7 @@ loadMoreBtn.addEventListener('click', async () => {
 
   if (data.hits.length === 0) {
     showMessage("We're sorry, but you've reached the end of search results.");
-    toggleLoadMoreButton();
+    loadMoreBtn.style.display = 'none';
     return;
   }
 
@@ -130,9 +128,9 @@ loadMoreBtn.addEventListener('click', async () => {
   lightbox.refresh();
 
   const totalPages = Math.ceil(data.totalHits / data.perPage);
-  if (data.pageNumber >= totalPages) {
+  if (page === totalPages) {
     showMessage("We're sorry, but you've reached the end of search results.");
-    toggleLoadMoreButton();
+    loadMoreBtn.style.display = 'none';
     return;
   }
 });
