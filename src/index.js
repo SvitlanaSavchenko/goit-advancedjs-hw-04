@@ -10,6 +10,7 @@ const gallery = document.getElementById('gallery');
 
 let page = 1;
 let searchQuery = '';
+let totalHits = 0; // зберігаємо загальну кількість зображень
 
 const lightbox = new SimpleLightbox('.gallery a');
 
@@ -69,6 +70,16 @@ const showMessage = message => {
 
 loadMoreBtn.style.display = 'none';
 
+const toggleLoadMoreButton = () => {
+  if (totalHits > 0 && (page - 1) * 40 < totalHits) {
+    loadMoreBtn.style.display = 'block';
+  } else {
+    loadMoreBtn.style.display = 'none';
+  }
+};
+
+loadMoreBtn.style.display = 'none';
+
 searchForm.addEventListener('submit', async event => {
   event.preventDefault();
   searchQuery = event.target.elements.searchQuery.value.trim();
@@ -86,14 +97,23 @@ searchForm.addEventListener('submit', async event => {
       'Sorry, there are no images matching your search query. Please try again.'
     );
     gallery.innerHTML = '';
+    toggleLoadMoreButton();
     return;
   }
 
-  gallery.innerHTML = ''; // Очищення галереї перед новим пошуком
+  gallery.innerHTML = '';
+  totalHits = data.totalHits;
   displayImages(data.hits);
   lightbox.refresh();
   showMessage(`Hooray! We found ${data.totalHits} images.`);
-  loadMoreBtn.style.display = 'block';
+  toggleLoadMoreButton();
+
+  const totalPages = Math.ceil(data.totalHits / data.perPage);
+  if (data.pageNumber >= totalPages) {
+    showMessage("We're sorry, but you've reached the end of search results.");
+    toggleLoadMoreButton();
+    return;
+  }
 });
 
 loadMoreBtn.addEventListener('click', async () => {
@@ -102,19 +122,17 @@ loadMoreBtn.addEventListener('click', async () => {
 
   if (data.hits.length === 0) {
     showMessage("We're sorry, but you've reached the end of search results.");
-    loadMoreBtn.style.display = 'none';
+    toggleLoadMoreButton();
     return;
   }
 
   displayImages(data.hits);
   lightbox.refresh();
 
-  // Плавне прокручування після завантаження нових зображень
-  const { height: cardHeight } = document
-    .querySelector('.photo-card')
-    .getBoundingClientRect();
-  window.scrollBy({
-    top: cardHeight * 2,
-    behavior: 'smooth',
-  });
+  const totalPages = Math.ceil(data.totalHits / data.perPage);
+  if (data.pageNumber >= totalPages) {
+    showMessage("We're sorry, but you've reached the end of search results.");
+    toggleLoadMoreButton();
+    return;
+  }
 });
