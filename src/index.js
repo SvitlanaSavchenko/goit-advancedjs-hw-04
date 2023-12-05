@@ -10,7 +10,7 @@ const gallery = document.getElementById('gallery');
 
 let page = 1;
 let searchQuery = '';
-let totalHits = 0; // зберігаємо загальну кількість зображень
+let totalHits = 0;
 
 const lightbox = new SimpleLightbox('.gallery a');
 
