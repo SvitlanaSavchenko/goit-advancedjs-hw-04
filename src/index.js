@@ -2,6 +2,7 @@ import axios from 'axios';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 
 const searchForm = document.getElementById('search-form');
 const loadMoreBtn = document.querySelector('.load-more');
@@ -10,10 +11,12 @@ const gallery = document.getElementById('gallery');
 let page = 1;
 let searchQuery = '';
 
+const lightbox = new SimpleLightbox('.gallery a');
+
 const baseURL = 'https://pixabay.com/api/';
 const apiKey = '41042730-e71566aaa26e0b69c1c299757';
 
-const fetchImages = async (query, pageNumber, perPage = 20) => {
+const fetchImages = async (query, pageNumber, perPage = 40) => {
   try {
     const response = await axios.get(baseURL, {
       params: {
@@ -54,10 +57,6 @@ const displayImages = images => {
     .join('');
 
   gallery.insertAdjacentHTML('beforeend', htmlString);
-
-  // Оновлення SimpleLightbox після додавання нових карток
-  const lightbox = new SimpleLightbox('.gallery a');
-  lightbox.refresh();
 };
 
 const showMessage = message => {
@@ -92,6 +91,7 @@ searchForm.addEventListener('submit', async event => {
 
   gallery.innerHTML = ''; // Очищення галереї перед новим пошуком
   displayImages(data.hits);
+  lightbox.refresh();
   showMessage(`Hooray! We found ${data.totalHits} images.`);
   loadMoreBtn.style.display = 'block';
 });
@@ -107,6 +107,7 @@ loadMoreBtn.addEventListener('click', async () => {
   }
 
   displayImages(data.hits);
+  lightbox.refresh();
 
   // Плавне прокручування після завантаження нових зображень
   const { height: cardHeight } = document
